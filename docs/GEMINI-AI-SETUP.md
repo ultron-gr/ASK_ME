@@ -51,7 +51,7 @@ When users ask questions that don't match specific intents (classrooms, library,
 
 ```env
 # Google Gemini AI Configuration
-GEMINI_API_KEY=AIzaSyYourActualAPIKeyHere
+GEMINI_API_KEY=*****************
 ```
 
 3. Save the file
