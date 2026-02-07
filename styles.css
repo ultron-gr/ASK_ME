@@ -5,10 +5,12 @@
 }
 
 :root {
-    --primary: #6366f1;
-    --primary-dark: #4f46e5;
-    --primary-light: #818cf8;
-    --accent: #ec4899;
+    --primary: #f97316;
+    --primary-dark: #ea580c;
+    --primary-light: #fb923c;
+    --accent: #14b8a6;
+    --accent-dark: #0d9488;
+    --accent-light: #2dd4bf;
     --text: #1e293b;
     --text-light: #64748b;
     --border: #e2e8f0;
@@ -24,7 +26,7 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     color: var(--text);
     line-height: 1.6;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #f97316 0%, #14b8a6 100%);
     background-attachment: fixed;
     min-height: 100vh;
 }
@@ -117,6 +119,53 @@ body {
     margin: 0 auto;
     padding: 6rem 2rem 4rem;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Aceternity-style Hero Background */
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.spotlight {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: spotlightPulse 4s ease-in-out infinite;
+}
+
+.grid-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+}
+
+@keyframes spotlightPulse {
+    0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+    50% { opacity: 0.8; transform: translateX(-50%) scale(1.1); }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
 }
 
 .hero-badge {
@@ -144,10 +193,18 @@ body {
 }
 
 .gradient-text {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    background: linear-gradient(135deg, #fbbf24 0%, #fde047 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+.hero-tagline {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 1);
+    margin-bottom: 1rem !important;
+    font-weight: 700;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .hero-content p {
@@ -226,6 +283,17 @@ body {
 
 .stat {
     text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.stat-animated:hover {
+    transform: translateY(-5px) scale(1.05);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .stat-number {
@@ -233,12 +301,21 @@ body {
     font-weight: 800;
     color: white;
     margin-bottom: 0.5rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .stat-label {
     font-size: 1rem;
     color: rgba(255, 255, 255, 0.8);
     font-weight: 500;
+}
+
+.stats-disclaimer {
+    font-size: 0.95rem !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-style: italic;
+    margin-top: 2rem !important;
+    margin-bottom: 0 !important;
 }
 
 /* Features */
@@ -282,6 +359,23 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.18);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.card-hover-effect::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.card-hover-effect:hover::before {
+    left: 100%;
 }
 
 .feature-card:hover {
@@ -492,7 +586,7 @@ body {
 .form-group input:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
 .login-box .btn-primary {
@@ -585,7 +679,7 @@ body {
     align-items: center;
     justify-content: center;
     margin: 0 auto 1.5rem;
-    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 8px 16px rgba(249, 115, 22, 0.3);
 }
 
 .step-card h3 {
@@ -636,6 +730,159 @@ body {
     font-size: 1.15rem;
 }
 
+/* Energy Savings Section */
+.energy-section {
+    max-width: 1200px;
+    margin: 6rem auto;
+    padding: 4rem 2rem;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+}
+
+.energy-content {
+    text-align: center;
+}
+
+.section-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: white;
+    padding: 0.5rem 1.25rem;
+    border-radius: 30px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+.energy-content h2 {
+    font-size: 2.5rem;
+    color: var(--text);
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.section-subtitle {
+    font-size: 1.15rem;
+    color: var(--text-light);
+    margin-bottom: 3rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.energy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.energy-card {
+    background: var(--bg-light);
+    padding: 2.5rem;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.energy-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.highlight-card {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(20, 184, 166, 0.05) 100%);
+    border: 2px solid var(--primary);
+    position: relative;
+}
+
+.daily-badge {
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+}
+
+.energy-card h3 {
+    font-size: 1.5rem;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.energy-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.energy-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.energy-stat:hover {
+    background: rgba(249, 115, 22, 0.05);
+    transform: scale(1.02);
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.25rem;
+}
+
+.stat-value.big {
+    font-size: 2.25rem;
+}
+
+.stat-desc {
+    font-size: 0.95rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.card-note {
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    color: var(--primary);
+    font-weight: 600;
+    font-style: italic;
+}
+
+.savings-highlight {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    padding: 1.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
+}
+
+.highlight-text {
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
 /* Footer */
 footer {
     background: rgba(255, 255, 255, 0.1);
@@ -658,6 +905,27 @@ footer {
     margin-bottom: 1.5rem;
 }
 
+.footer-taglines {
+    margin: 2rem 0;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tagline {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0.75rem 0;
+    font-weight: 600;
+    font-style: italic;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tagline::before {
+    content: '💬 ';
+}
+
 .footer-links {
     display: flex;
     gap: 2rem;
@@ -676,6 +944,47 @@ footer {
 .footer-links a:hover {
     color: white;
     transform: translateY(-2px);
+}
+
+.footer-creator {
+    margin: 2rem 0 1.5rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.creator-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.creator-name {
+    font-size: 1.25rem;
+    color: white;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.creator-email {
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+}
+
+.creator-email a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.creator-email a:hover {
+    color: white;
+    text-decoration: underline;
 }
 
 footer p {
@@ -711,7 +1020,8 @@ footer p {
         font-size: 2.25rem;
     }
 
-    .hero-content p {
+    .hero-content p,
+    .hero-tagline {
         font-size: 1.1rem;
     }
 
@@ -746,6 +1056,44 @@ footer p {
     .feature-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
+    }
+
+    .energy-section {
+        padding: 3rem 1.5rem;
+        margin: 4rem auto;
+    }
+
+    .energy-content h2 {
+        font-size: 2rem;
+    }
+
+    .section-subtitle {
+        font-size: 1rem;
+    }
+
+    .energy-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .stat-value.big {
+        font-size: 1.85rem;
+    }
+
+    .highlight-text {
+        font-size: 1.05rem;
+    }
+
+    .footer-taglines {
+        padding: 1.5rem;
+    }
+
+    .tagline {
+        font-size: 0.95rem;
     }
 
     .how-section {

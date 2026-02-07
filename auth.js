@@ -61,8 +61,8 @@ if (loginForm) {
                 sessionStorage.setItem('userName', email.split('@')[0]);
             }
 
-            // Redirect to chatbot
-            window.location.href = 'chatbot.html';
+            // Redirect to dashboard
+            window.location.href = 'dashboard.html';
 
         } catch (error) {
             console.error('Login error:', error);
@@ -200,8 +200,8 @@ async function checkExistingSession() {
             const { data: { user }, error } = await supabase.auth.getUser(accessToken);
 
             if (!error && user) {
-                // Valid session, redirect to chatbot
-                window.location.href = 'chatbot.html';
+                // Valid session, redirect to dashboard
+                window.location.href = 'dashboard.html';
             } else {
                 // Invalid session, clear storage
                 sessionStorage.clear();

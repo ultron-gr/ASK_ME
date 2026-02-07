@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - ASK DSU</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="profile.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎓 ASK DSU</div>
+            <div class="nav-links">
+                <a href="chatbot.html">Chat</a>
+                <a href="profile.html" class="active">Profile</a>
+                <button class="btn-logout" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="profile-container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <h1>Your Profile</h1>
+                <p class="profile-subtitle">Customize your campus assistant experience</p>
+            </div>
+
+            <div class="profile-content">
+                <!-- Profile Avatar Selection -->
+                <div class="avatar-section">
+                    <h3>Choose Your Vibe</h3>
+                    <div class="current-avatar">
+                        <div class="avatar-display" id="currentAvatar">
+                            <span class="avatar-icon">😎</span>
+                        </div>
+                        <p class="avatar-label">Current Avatar</p>
+                    </div>
+
+                    <div class="avatar-grid" id="avatarGrid">
+                        <!-- Avatars will be populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Profile Form -->
+                <form id="profileForm" class="profile-form">
+                    <div class="form-section">
+                        <h3>Basic Info</h3>
+
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" placeholder="Your full name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" placeholder="Choose a cool username" required>
+                            <small>This is how others will see you (if we add social features later)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" disabled>
+                            <small>Email cannot be changed</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="year">Year</label>
+                            <select id="year" name="year">
+                                <option value="">Select your year</option>
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year">3rd Year</option>
+                                <option value="4th Year">4th Year</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="branch">Branch</label>
+                            <select id="branch" name="branch" required>
+                                <option value="">Select your branch</option>
+                                <option value="CSE">Computer Science Engineering</option>
+                                <option value="ISE">Information Science Engineering</option>
+                                <option value="ECE">Electronics & Communication Engineering</option>
+                                <option value="EEE">Electrical & Electronics Engineering</option>
+                                <option value="MECH">Mechanical Engineering</option>
+                                <option value="CIVIL">Civil Engineering</option>
+                                <option value="AI-ML">Artificial Intelligence & Machine Learning</option>
+                                <option value="DS">Data Science</option>
+                                <option value="CS">Cyber Security</option>
+                                <option value="IOT">Internet of Things</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bio">Bio</label>
+                            <textarea id="bio" name="bio" placeholder="Tell us about yourself... What's your vibe? 🌟" rows="4" maxlength="200"></textarea>
+                            <small><span id="bioCount">0</span>/200 characters</small>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save Profile</button>
+                        <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+                    </div>
+
+                    <div id="success-message" class="success-message"></div>
+                    <div id="error-message" class="error-message"></div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">🎓 ASK DSU</div>
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="how-it-works.html">How It Works</a>
+                <a href="chatbot.html">Chat</a>
+                <a href="profile.html">Profile</a>
+            </div>
+            <div class="footer-creator">
+                <p class="creator-label">Created by</p>
+                <p class="creator-name">Rakshith Ignatius</p>
+                <p class="creator-email"><a href="mailto:rakshithignatius@gmail.com">rakshithignatius@gmail.com</a></p>
+            </div>
+            <p>&copy; 2026 ASK DSU. Made with ❤️ for DSU students</p>
+        </div>
+    </footer>
+
+    <!-- Supabase Client Library -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+    <script src="supabaseClient.js"></script>
+    <script src="profile.js"></script>
+</body>
+</html>

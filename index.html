@@ -6,6 +6,7 @@
     <title>ASK DSU - Your Smart Campus Assistant</title>
     <meta name="description" content="Find free classrooms, check library status, and locate faculty instantly at DSU">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
 </head>
 <body>
     <nav class="navbar">
@@ -20,57 +21,123 @@
     </nav>
 
     <main class="hero">
+        <div class="hero-background">
+            <div class="spotlight"></div>
+            <div class="grid-pattern"></div>
+        </div>
         <div class="hero-content">
-            <div class="hero-badge">✨ Your Smart Campus Companion</div>
-            <h1>Your Campus, <span class="gradient-text">Simplified</span></h1>
-            <p>Find free classrooms, check library occupancy, and locate faculty—instantly. Your Gen-Z campus assistant powered by AI.</p>
+            <div class="hero-badge">✨ Stop Walking Aimlessly Around Campus</div>
+            <h1>Why Walk First and <span class="gradient-text">Check Later?</span></h1>
+            <p class="hero-tagline">No more empty cabins. No more full classrooms. No more pointless walks.</p>
+            <p>Ask before you trek. Your Gen-Z campus assistant that actually respects your time and calories.</p>
             <div class="cta-buttons">
                 <a href="signup.html" class="btn-primary">Get Started Free</a>
                 <a href="how-it-works.html" class="btn-secondary">Learn More →</a>
             </div>
             <div class="hero-stats">
-                <div class="stat">
-                    <div class="stat-number">12+</div>
-                    <div class="stat-label">Classrooms</div>
+                <div class="stat stat-animated">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-number">10 min</div>
+                    <div class="stat-label">Saved Per Check</div>
                 </div>
-                <div class="stat">
-                    <div class="stat-number">10+</div>
-                    <div class="stat-label">Faculty</div>
+                <div class="stat stat-animated">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-number">~110 cal</div>
+                    <div class="stat-label">Saved Per Trip</div>
                 </div>
-                <div class="stat">
-                    <div class="stat-number">24/7</div>
-                    <div class="stat-label">Available</div>
+                <div class="stat stat-animated">
+                    <div class="stat-icon">👟</div>
+                    <div class="stat-number">2,400</div>
+                    <div class="stat-label">Steps Avoided</div>
                 </div>
             </div>
+            <p class="stats-disclaimer">Every single time you check before walking. That's smart, not lazy.</p>
         </div>
     </main>
 
     <section class="features">
         <div class="features-header">
             <h2>Everything You Need, One Chat Away</h2>
-            <p>No more running around campus. Get instant answers to your campus queries.</p>
+            <p>We save you 10 minutes of walking, not 10 minutes of guessing.</p>
         </div>
 
         <div class="feature-grid">
-            <div class="feature-card">
+            <div class="feature-card card-hover-effect">
                 <div class="feature-icon">🏫</div>
                 <h3>Free Classrooms</h3>
-                <p>Know which rooms are empty in real-time. Perfect for group study or quick meetings.</p>
+                <p>Know which rooms are empty in real-time. Perfect for group study, emergency naps, or avoiding people.</p>
                 <div class="feature-example">"Show me free classrooms"</div>
             </div>
 
-            <div class="feature-card">
+            <div class="feature-card card-hover-effect">
                 <div class="feature-icon">📚</div>
                 <h3>Library Status</h3>
-                <p>Check real-time seat availability before heading to the library. Save time, study smart.</p>
+                <p>Check real-time seat availability before the trek. Because walking to a full library is a special kind of pain.</p>
                 <div class="feature-example">"Is the library full?"</div>
             </div>
 
-            <div class="feature-card">
+            <div class="feature-card card-hover-effect">
                 <div class="feature-icon">👨‍🏫</div>
                 <h3>Faculty Finder</h3>
-                <p>Locate teachers instantly with cabin numbers and availability status. No more wandering around.</p>
+                <p>Locate teachers instantly with cabin numbers. Stop playing hide-and-seek with your professors.</p>
                 <div class="feature-example">"Where is Dr. Sharma?"</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Energy Savings Section -->
+    <section class="energy-section">
+        <div class="energy-content">
+            <div class="section-badge">💡 The Math That Matters</div>
+            <h2>Energy Saved Today = <span class="gradient-text">Focus Used Where It Matters</span></h2>
+            <p class="section-subtitle">Walking 10 minutes at 3 m/s burns ~110–115 calories for an 80 kg person. Here's what you're saving:</p>
+
+            <div class="energy-grid">
+                <div class="energy-card">
+                    <h3>Per Single Check</h3>
+                    <div class="energy-stats">
+                        <div class="energy-stat">
+                            <span class="stat-value">10 minutes</span>
+                            <span class="stat-desc">Time saved</span>
+                        </div>
+                        <div class="energy-stat">
+                            <span class="stat-value">~110 kcal</span>
+                            <span class="stat-desc">Calories saved</span>
+                        </div>
+                        <div class="energy-stat">
+                            <span class="stat-value">1.8 km</span>
+                            <span class="stat-desc">Distance avoided (3 m/s × 600s)</span>
+                        </div>
+                        <div class="energy-stat">
+                            <span class="stat-value">~2,400 steps</span>
+                            <span class="stat-desc">Steps avoided (avg 0.75m/step)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="energy-card highlight-card">
+                    <div class="daily-badge">🌟 Daily Impact</div>
+                    <h3>Per Day (3 checks)</h3>
+                    <div class="energy-stats">
+                        <div class="energy-stat">
+                            <span class="stat-value big">30 minutes</span>
+                            <span class="stat-desc">Reclaimed time</span>
+                        </div>
+                        <div class="energy-stat">
+                            <span class="stat-value big">~330 kcal</span>
+                            <span class="stat-desc">Energy preserved</span>
+                        </div>
+                        <div class="energy-stat">
+                            <span class="stat-value big">~7,200 steps</span>
+                            <span class="stat-desc">Almost a full daily step goal</span>
+                        </div>
+                    </div>
+                    <p class="card-note">That's half an hour you can actually use for something that matters.</p>
+                </div>
+            </div>
+
+            <div class="savings-highlight">
+                <p class="highlight-text">~110 calories saved per avoided trip — to be safe and honest.</p>
             </div>
         </div>
     </section>
@@ -109,13 +176,25 @@
     <footer>
         <div class="footer-content">
             <div class="footer-logo">🎓 ASK DSU</div>
+
+            <div class="footer-taglines">
+                <p class="tagline">"We save you 10 minutes of walking, not 10 minutes of guessing"</p>
+                <p class="tagline">"Energy saved today = focus used where it matters"</p>
+                <p class="tagline">"Why walk first and check later?"</p>
+            </div>
+
             <div class="footer-links">
                 <a href="index.html">Home</a>
                 <a href="how-it-works.html">How It Works</a>
                 <a href="login.html">Login</a>
                 <a href="signup.html">Sign Up</a>
             </div>
-            <p>&copy; 2026 ASK DSU. All rights reserved. Made with ❤️ for DSU students</p>
+            <div class="footer-creator">
+                <p class="creator-label">Created by</p>
+                <p class="creator-name">Rakshith Ignatius</p>
+                <p class="creator-email"><a href="mailto:rakshithignatius@gmail.com">rakshithignatius@gmail.com</a></p>
+            </div>
+            <p>&copy; 2026 ASK DSU. All rights reserved. Made with ❤️ for DSU students who value their time</p>
         </div>
     </footer>
 </body>
