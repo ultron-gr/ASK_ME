@@ -9,7 +9,14 @@
       "Bash(findstr:*)",
       "Bash(taskkill /PID 17912 /F)",
       "Bash(cmd /c \"taskkill /PID 17912 /F\")",
-      "Bash(taskkill //F //PID 17912)"
+      "Bash(taskkill //F //PID 17912)",
+      "Bash(PORT=3001 npm start)",
+      "Bash(ping:*)",
+      "Bash(nul)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c \"taskkill //F //PID 2608\")",
+      "Bash(powershell -Command \"Stop-Process -Id 2608 -Force\")",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

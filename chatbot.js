@@ -5,26 +5,93 @@ const chatForm = document.getElementById('chatForm');
 const userInput = document.getElementById('userInput');
 const sendBtn = document.getElementById('sendBtn');
 
-// Check authentication
+// Check authentication and restore session
 async function checkAuth() {
     const accessToken = sessionStorage.getItem('access_token');
+    const refreshToken = sessionStorage.getItem('refresh_token');
 
-    if (!accessToken) {
+    if (!accessToken || !refreshToken) {
         window.location.href = 'login.html';
-        return;
+        return false;
     }
 
     try {
-        const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+        // Restore the session in Supabase client
+        const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+        });
 
-        if (error || !user) {
+        if (error || !data.session) {
+            console.error('Session restore error:', error);
             sessionStorage.clear();
             window.location.href = 'login.html';
+            return false;
         }
+
+        console.log('✅ Session restored successfully');
+        console.log('User:', data.session.user.email);
+
+        // Test database connection
+        await testDatabaseConnection();
+
+        return true;
     } catch (error) {
         console.error('Auth check error:', error);
         sessionStorage.clear();
         window.location.href = 'login.html';
+        return false;
+    }
+}
+
+// Test database connection and RLS policies
+async function testDatabaseConnection() {
+    console.log('🔍 Testing database connection...');
+
+    try {
+        // Test faculty table - try to get actual data
+        const { data: facultyData, error: facultyError } = await supabase
+            .from('faculty')
+            .select('*');
+
+        if (facultyError) {
+            console.error('❌ Faculty table error:', facultyError);
+            console.error('This usually means RLS policies are blocking access');
+            console.error('👉 You need to run: backend/fix-rls-policies.sql in Supabase SQL Editor');
+        } else {
+            console.log('✅ Faculty table accessible');
+            console.log(`   Found ${facultyData.length} faculty members:`);
+            if (facultyData.length > 0) {
+                facultyData.forEach(f => console.log(`   - ${f.name} (${f.cabin_number})`));
+            } else {
+                console.warn('⚠️ No faculty data in database! Run backend/database-setup.sql');
+            }
+        }
+
+        // Test classrooms table
+        const { data: classroomData, error: classroomError } = await supabase
+            .from('classrooms')
+            .select('count');
+
+        if (classroomError) {
+            console.error('❌ Classrooms table error:', classroomError);
+        } else {
+            console.log('✅ Classrooms table accessible');
+        }
+
+        // Test library_status table
+        const { data: libraryData, error: libraryError } = await supabase
+            .from('library_status')
+            .select('count');
+
+        if (libraryError) {
+            console.error('❌ Library table error:', libraryError);
+        } else {
+            console.log('✅ Library table accessible');
+        }
+
+    } catch (error) {
+        console.error('❌ Database connection test failed:', error);
     }
 }
 
@@ -78,187 +145,154 @@ function detectIntent(message) {
 // API Calls using Supabase
 async function handleClassroomQuery() {
     try {
-        const now = new Date();
-        const currentTime = now.toTimeString().split(' ')[0]; // HH:MM:SS format
-        const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+        console.log('🏫 Fetching free classrooms via backend API');
 
-        // Get all classrooms
-        const { data: classrooms, error: classroomError } = await supabase
-            .from('classrooms')
-            .select('*')
-            .eq('is_available', true);
+        const accessToken = sessionStorage.getItem('access_token');
 
-        if (classroomError) {
-            console.error('Classroom query error:', classroomError);
-            return "Can't fetch classroom data right now. Error: " + classroomError.message;
+        const response = await fetch('http://localhost:3001/api/chatbot/classrooms/free', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+        console.log('📊 Backend API response:', result);
+
+        if (!result.success) {
+            return result.message || "No free classrooms found right now.";
         }
 
-        if (!classrooms || classrooms.length === 0) {
-            return "No classrooms found in the database.";
-        }
-
-        // Get all schedules for today
-        const { data: schedules, error: scheduleError } = await supabase
-            .from('schedules')
-            .select('*')
-            .eq('day_of_week', currentDay);
-
-        if (scheduleError) {
-            console.error('Schedule query error:', scheduleError);
-        }
-
-        // Find free classrooms (not in any current schedule)
-        const busyClassroomIds = new Set();
-        const availableUntil = {};
-
-        if (schedules) {
-            schedules.forEach(schedule => {
-                const startTime = schedule.start_time;
-                const endTime = schedule.end_time;
-
-                // Check if current time is within this schedule
-                if (currentTime >= startTime && currentTime <= endTime) {
-                    busyClassroomIds.add(schedule.classroom_id);
-                } else if (currentTime < startTime) {
-                    // Classroom is free until this class starts
-                    if (!availableUntil[schedule.classroom_id] || startTime < availableUntil[schedule.classroom_id]) {
-                        availableUntil[schedule.classroom_id] = startTime;
-                    }
-                }
-            });
-        }
-
-        const freeClassrooms = classrooms.filter(room => !busyClassroomIds.has(room.classroom_id));
-
-        if (freeClassrooms.length === 0) {
-            return "Everything's booked right now. Try again later.";
-        }
-
+        const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
         let responseText = `**Free Classrooms Right Now (${currentDay}):**\n\n`;
-        freeClassrooms.forEach(room => {
-            const until = availableUntil[room.classroom_id];
-            const untilText = until ? ` - free till ${until.slice(0, 5)}` : ' - free for the rest of the day';
-            responseText += `• **${room.room_number}** (${room.building}, capacity: ${room.capacity})${untilText}\n`;
+
+        result.data.forEach(room => {
+            responseText += `• **${room.roomNumber}** (${room.building}) - free till ${room.availableUntil}\n`;
         });
 
         return responseText;
 
     } catch (error) {
-        console.error('Classroom API error:', error);
-        return "Can't reach the database. Check your connection. Error: " + error.message;
+        console.error('❌ Classroom query error:', error);
+        return "Can't reach the backend server. Make sure it's running on port 3001.\n\nError: " + error.message;
     }
 }
 
 async function handleLibraryQuery() {
     try {
-        // Get the latest library status
-        const { data, error } = await supabase
-            .from('library_status')
-            .select('*')
-            .order('last_updated', { ascending: false })
-            .limit(1)
-            .single();
+        console.log('📚 Fetching library status via backend API');
 
-        if (error) {
-            console.error('Library query error:', error);
-            return "Library data unavailable right now.";
+        const accessToken = sessionStorage.getItem('access_token');
+
+        const response = await fetch('http://localhost:3001/api/chatbot/library/status', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+        console.log('📊 Backend API response:', result);
+
+        if (!result.success) {
+            return result.message || "Library data unavailable right now.";
         }
 
-        const occupancyPercentage = Math.round((data.occupied_seats / data.total_seats) * 100);
-        const availableSeats = data.total_seats - data.occupied_seats;
-
-        let message = '';
-        if (occupancyPercentage >= 90) {
-            message = 'Library is packed. Good luck finding a spot.';
-        } else if (occupancyPercentage >= 70) {
-            message = 'Library is pretty full, but you might get lucky.';
-        } else if (occupancyPercentage >= 50) {
-            message = 'Decent space available. Go grab a seat.';
-        } else {
-            message = 'Library is chill. Plenty of seats available.';
-        }
-
+        const data = result.data;
         let responseText = `**Library Status:**\n\n`;
-        responseText += `Total Seats: ${data.total_seats}\n`;
-        responseText += `Available: ${availableSeats}\n`;
-        responseText += `Occupancy: ${occupancyPercentage}%\n\n`;
-        responseText += message;
+        responseText += `Total Seats: ${data.totalSeats}\n`;
+        responseText += `Available: ${data.availableSeats}\n`;
+        responseText += `Occupancy: ${data.occupancyPercentage}%\n\n`;
+        responseText += result.message;
 
         return responseText;
 
     } catch (error) {
-        console.error('Library API error:', error);
-        return "Can't reach the database. Check your connection.";
+        console.error('❌ Library query error:', error);
+        return "Can't reach the backend server. Make sure it's running on port 3001.\n\nError: " + error.message;
     }
 }
 
 async function handleFacultyQuery(message) {
     try {
-        // Better name extraction - remove common words and extract names
+        // Improved name extraction - keep actual name parts
         let searchName = message.toLowerCase()
-            .replace(/where is|find|locate|search|show me|tell me about|contact/gi, '')
-            .replace(/teacher|professor|faculty|sir|mam|madam|prof/gi, '')
-            .replace(/dr\.?|dr\s/gi, '')
+            .replace(/where is|find|locate|search|show me|tell me about|contact|who is/gi, '')
+            .replace(/teacher|professor|faculty|sir|mam|madam|mr|mrs|ms/gi, '')
+            .replace(/prof\.?|prof\s/gi, '')
+            .replace(/dr\.?\s*/gi, '') // Remove "Dr." but keep the name
+            .replace(/\?/g, '')
             .trim();
 
-        // If no name found, try to extract any word that looks like a name
+        // Clean up extra spaces
+        searchName = searchName.replace(/\s+/g, ' ').trim();
+
+        // If no name found, try to extract any word that looks like a name (capitalized or longer words)
         if (!searchName || searchName.length < 2) {
-            const words = message.split(' ');
-            const possibleName = words.find(word =>
-                word.length > 3 &&
-                !['where', 'find', 'show', 'tell', 'about', 'the'].includes(word.toLowerCase())
-            );
-            searchName = possibleName || '';
+            const words = message.split(' ').filter(word => word.length > 0);
+            const possibleName = words.find(word => {
+                const w = word.toLowerCase().replace(/[^a-z]/g, '');
+                return w.length > 3 &&
+                    !['where', 'find', 'show', 'tell', 'about', 'teacher', 'professor', 'faculty'].includes(w);
+            });
+            searchName = possibleName ? possibleName.replace(/[^a-zA-Z\s]/g, '') : '';
         }
 
         if (!searchName || searchName.length < 2) {
-            return "Give me a faculty name to search. Try: 'Where is Dr. Sharma?' or 'Find Professor Patel'";
+            return "Give me a faculty name to search. Try: 'Where is Dr. Sharma?' or 'Find Professor Patel' or just 'Sharma'";
         }
 
-        console.log('Searching for faculty:', searchName);
+        console.log('🔍 Searching for faculty via backend API:', searchName);
 
-        // Search faculty by name (case-insensitive)
-        const { data, error } = await supabase
-            .from('faculty')
-            .select('*')
-            .ilike('name', `%${searchName}%`);
+        // Get access token for authentication
+        const accessToken = sessionStorage.getItem('access_token');
 
-        if (error) {
-            console.error('Faculty query error:', error);
-            return "Faculty search failed. Error: " + error.message;
+        // Call backend API instead of direct Supabase query
+        const response = await fetch(`http://localhost:3001/api/chatbot/faculty/search?name=${encodeURIComponent(searchName)}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+        console.log('📊 Backend API response:', result);
+
+        if (!result.success) {
+            return result.message || "Faculty search failed. Try a different name.";
         }
 
-        if (!data || data.length === 0) {
-            return `No faculty found matching "${searchName}". Try:\n• Dr. Sharma\n• Dr. Patel\n• Dr. Kumar\n• Dr. Singh\n• Prof. Desai`;
-        }
-
-        if (data.length > 1) {
-            let responseText = `**Found ${data.length} faculty members:**\n\n`;
-            data.forEach(faculty => {
-                const status = faculty.is_available ? '✅ Available' : '❌ Busy';
-                responseText += `• **${faculty.name}**\n  Cabin: ${faculty.cabin_number} | ${faculty.department}\n  Status: ${status}\n\n`;
+        // Handle multiple results
+        if (result.multiple && result.data && result.data.length > 1) {
+            let responseText = `**Found ${result.data.length} faculty members:**\n\n`;
+            result.data.forEach(faculty => {
+                responseText += `• **${faculty.name}**\n  Cabin: ${faculty.cabin} | ${faculty.department}\n\n`;
             });
             return responseText;
         }
 
-        const faculty = data[0];
-        const status = faculty.is_available ? '✅ Available' : '❌ Busy';
+        // Handle single result
+        const faculty = result.data;
+        const statusIcon = faculty.status === 'Available' ? '✅' : '❌';
 
         let responseText = `**${faculty.name}**\n\n`;
-        responseText += `📍 Cabin: ${faculty.cabin_number}\n`;
+        responseText += `📍 Cabin: ${faculty.cabin}\n`;
         responseText += `🏛️ Department: ${faculty.department}\n`;
-        responseText += `📊 Status: ${status}\n`;
+        responseText += `📊 Status: ${statusIcon} ${faculty.status}\n`;
 
         if (faculty.email) {
             responseText += `📧 Email: ${faculty.email}\n`;
         }
 
-        responseText += `\n${faculty.is_available ? '✨ Faculty is available right now!' : '⏰ Faculty might be in class or a meeting. Try later!'}`;
+        responseText += `\n${faculty.status === 'Available' ? '✨ Faculty is available right now!' : '⏰ Faculty might be in class or a meeting. Try later!'}`;
         return responseText;
 
     } catch (error) {
-        console.error('Faculty API error:', error);
-        return "Can't reach the database. Error: " + error.message;
+        console.error('❌ Faculty search error:', error);
+        return "Can't reach the backend server. Make sure it's running on port 3001.\n\nError: " + error.message;
     }
 }
 

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Connection Test - ASK DSU</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+        }
+
+        .success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .info {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            color: #0c5460;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .test-result {
+            margin-top: 1rem;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .action-required {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .action-required h3 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 ASK DSU Database Connection Test</h1>
+        <p>This page will help you diagnose and fix database connection issues.</p>
+
+        <div class="section">
+            <h2>Step 1: Login First</h2>
+            <p>You need to be logged in to test the database connection.</p>
+            <button onclick="window.location.href='login.html'">Go to Login</button>
+        </div>
+
+        <div class="section">
+            <h2>Step 2: Run Tests</h2>
+            <button onclick="runAllTests()">🚀 Run All Tests</button>
+            <button onclick="testFacultyTable()">Test Faculty Table</button>
+            <button onclick="testClassroomsTable()">Test Classrooms Table</button>
+            <button onclick="testLibraryTable()">Test Library Table</button>
+
+            <div id="results"></div>
+        </div>
+
+        <div class="section">
+            <h2>Step 3: Fix Issues (If Any)</h2>
+            <div id="fix-instructions"></div>
+        </div>
+    </div>
+
+    <!-- Supabase Client Library -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+    <script src="supabaseClient.js"></script>
+
+    <script>
+        const resultsDiv = document.getElementById('results');
+        const fixInstructionsDiv = document.getElementById('fix-instructions');
+        let hasErrors = false;
+
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            resultsDiv.appendChild(div);
+        }
+
+        async function checkSession() {
+            const accessToken = sessionStorage.getItem('access_token');
+            const refreshToken = sessionStorage.getItem('refresh_token');
+
+            if (!accessToken || !refreshToken) {
+                addResult('❌ Not logged in! Please login first.', 'error');
+                hasErrors = true;
+                return false;
+            }
+
+            try {
+                const { data, error } = await supabase.auth.setSession({
+                    access_token: accessToken,
+                    refresh_token: refreshToken
+                });
+
+                if (error || !data.session) {
+                    addResult('❌ Session restore failed: ' + (error?.message || 'Unknown error'), 'error');
+                    hasErrors = true;
+                    return false;
+                }
+
+                addResult('✅ Session restored: ' + data.session.user.email, 'success');
+                return true;
+            } catch (error) {
+                addResult('❌ Session error: ' + error.message, 'error');
+                hasErrors = true;
+                return false;
+            }
+        }
+
+        async function testFacultyTable() {
+            resultsDiv.innerHTML = '';
+            hasErrors = false;
+
+            addResult('⏳ Testing faculty table...', 'loading');
+
+            if (!await checkSession()) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('faculty')
+                    .select('*');
+
+                if (error) {
+                    addResult('❌ Faculty Table Error: ' + error.message, 'error');
+                    addResult('Error Details: ' + JSON.stringify(error, null, 2), 'error');
+                    hasErrors = true;
+                    showRLSFix();
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    addResult('⚠️ Faculty table is EMPTY! No data found.', 'error');
+                    hasErrors = true;
+                    showDataFix();
+                    return;
+                }
+
+                addResult(`✅ Faculty table working! Found ${data.length} records:`, 'success');
+                data.forEach(f => {
+                    addResult(`   - ${f.name} (${f.cabin_number}, ${f.department})`, 'success');
+                });
+
+            } catch (error) {
+                addResult('❌ Unexpected error: ' + error.message, 'error');
+                hasErrors = true;
+            }
+        }
+
+        async function testClassroomsTable() {
+            addResult('⏳ Testing classrooms table...', 'loading');
+
+            try {
+                const { data, error } = await supabase
+                    .from('classrooms')
+                    .select('*')
+                    .limit(5);
+
+                if (error) {
+                    addResult('❌ Classrooms Error: ' + error.message, 'error');
+                    hasErrors = true;
+                    return;
+                }
+
+                addResult(`✅ Classrooms table working! Found ${data?.length || 0} records`, 'success');
+            } catch (error) {
+                addResult('❌ Classrooms error: ' + error.message, 'error');
+                hasErrors = true;
+            }
+        }
+
+        async function testLibraryTable() {
+            addResult('⏳ Testing library_status table...', 'loading');
+
+            try {
+                const { data, error } = await supabase
+                    .from('library_status')
+                    .select('*')
+                    .limit(1);
+
+                if (error) {
+                    addResult('❌ Library Error: ' + error.message, 'error');
+                    hasErrors = true;
+                    return;
+                }
+
+                addResult('✅ Library table working!', 'success');
+                if (data && data.length > 0) {
+                    addResult(`   Seats: ${data[0].occupied_seats}/${data[0].total_seats} occupied`, 'success');
+                }
+            } catch (error) {
+                addResult('❌ Library error: ' + error.message, 'error');
+                hasErrors = true;
+            }
+        }
+
+        async function runAllTests() {
+            resultsDiv.innerHTML = '';
+            fixInstructionsDiv.innerHTML = '';
+            hasErrors = false;
+
+            addResult('🚀 Starting comprehensive database test...', 'loading');
+
+            if (!await checkSession()) {
+                showLoginRequired();
+                return;
+            }
+
+            await testFacultyTable();
+            await testClassroomsTable();
+            await testLibraryTable();
+
+            if (!hasErrors) {
+                addResult('🎉 ALL TESTS PASSED! Your database is working correctly.', 'success');
+                addResult('You can now use the chatbot normally.', 'success');
+                fixInstructionsDiv.innerHTML = '<div class="status success">✅ Everything is working! You can close this page and use the chatbot.</div>';
+            }
+        }
+
+        function showRLSFix() {
+            fixInstructionsDiv.innerHTML = `
+                <div class="action-required">
+                    <h3>🔧 ACTION REQUIRED: Fix Row Level Security Policies</h3>
+                    <p><strong>The database tables exist but RLS policies are blocking access.</strong></p>
+
+                    <h4>Follow these steps:</h4>
+                    <ol>
+                        <li>Go to <a href="https://supabase.com/dashboard" target="_blank">Supabase Dashboard</a></li>
+                        <li>Select your ASK DSU project</li>
+                        <li>Click <strong>"SQL Editor"</strong> in the left sidebar</li>
+                        <li>Click <strong>"New query"</strong></li>
+                        <li>Copy and paste this SQL script:</li>
+                    </ol>
+
+                    <pre>-- Fix RLS Policies
+DROP POLICY IF EXISTS "Anyone can read faculty" ON faculty;
+CREATE POLICY "Anyone can read faculty"
+    ON faculty FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Anyone can read classrooms" ON classrooms;
+CREATE POLICY "Anyone can read classrooms"
+    ON classrooms FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Anyone can read schedules" ON schedules;
+CREATE POLICY "Anyone can read schedules"
+    ON schedules FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Anyone can read library status" ON library_status;
+CREATE POLICY "Anyone can read library status"
+    ON library_status FOR SELECT USING (true);</pre>
+
+                    <ol start="6">
+                        <li>Click <strong>"Run"</strong> (or press Ctrl+Enter)</li>
+                        <li>Come back here and click <strong>"Run All Tests"</strong> again</li>
+                    </ol>
+                </div>
+            `;
+        }
+
+        function showDataFix() {
+            fixInstructionsDiv.innerHTML = `
+                <div class="action-required">
+                    <h3>📊 ACTION REQUIRED: Add Sample Data</h3>
+                    <p><strong>The tables are empty! You need to insert sample data.</strong></p>
+
+                    <h4>Follow these steps:</h4>
+                    <ol>
+                        <li>Open the file: <code>backend/database-setup.sql</code></li>
+                        <li>Go to <a href="https://supabase.com/dashboard" target="_blank">Supabase Dashboard</a></li>
+                        <li>Select your ASK DSU project</li>
+                        <li>Click <strong>"SQL Editor"</strong></li>
+                        <li>Click <strong>"New query"</strong></li>
+                        <li>Copy ALL contents from database-setup.sql and paste</li>
+                        <li>Click <strong>"Run"</strong></li>
+                        <li>Come back and test again</li>
+                    </ol>
+                </div>
+            `;
+        }
+
+        function showLoginRequired() {
+            fixInstructionsDiv.innerHTML = `
+                <div class="action-required">
+                    <h3>🔐 Please Login First</h3>
+                    <p>You need to be logged in to test the database connection.</p>
+                    <button onclick="window.location.href='login.html'">Go to Login Page</button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ASK DSU</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎓 ASK DSU</div>
+            <div class="nav-links">
+                <a href="dashboard.html" class="active">Dashboard</a>
+                <a href="profile.html">Profile</a>
+                <button class="btn-logout" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="dashboard-container">
+        <div class="welcome-card">
+            <!-- Avatar Display -->
+            <div class="user-avatar" id="userAvatar">
+                <span class="avatar-icon">🐢</span>
+            </div>
+
+            <!-- Welcome Message -->
+            <h1 class="welcome-title">Welcome back, <span id="userName">Student</span>!</h1>
+            <p class="welcome-subtitle" id="userBio">Ready to explore campus?</p>
+            <p class="user-badge"><span id="userBadge">Chrono Tortoise</span></p>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="chatbot.html" class="btn-chat">
+                    <span class="btn-icon">💬</span>
+                    <span class="btn-text">Start Chatting</span>
+                </a>
+                <a href="profile.html" class="btn-profile">
+                    <span class="btn-icon">👤</span>
+                    <span class="btn-text">Edit Profile</span>
+                </a>
+            </div>
+
+            <!-- User Info -->
+            <div class="user-info">
+                <div class="info-item">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value" id="userEmail">your.email@dsu.edu.in</span>
+                </div>
+                <div class="info-item" id="branchInfo" style="display: none;">
+                    <span class="info-label">Branch:</span>
+                    <span class="info-value" id="userBranch"></span>
+                </div>
+                <div class="info-item" id="yearInfo" style="display: none;">
+                    <span class="info-label">Year:</span>
+                    <span class="info-value" id="userYear"></span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">🎓 ASK DSU</div>
+            <div class="footer-creator">
+                <p class="creator-label">Created by</p>
+                <p class="creator-name">Rakshith Ignatius</p>
+                <p class="creator-email"><a href="mailto:rakshithignatius@gmail.com">rakshithignatius@gmail.com</a></p>
+            </div>
+            <p>&copy; 2026 ASK DSU. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Supabase Client Library -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+    <script src="supabaseClient.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

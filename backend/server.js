@@ -357,15 +357,20 @@ app.get('/api/chatbot/faculty/search', requireAuth, async (req, res) => {
             });
         }
 
+        console.log('🔍 Searching faculty with name:', name);
+
         // Search faculty by name (case-insensitive)
         const { data, error } = await supabase
             .from('faculty')
             .select('*')
             .ilike('name', `%${name}%`);
 
+        console.log('📊 Raw query results:', data);
+        console.log('❌ Query error:', error);
+
         if (error) {
             console.error('Faculty query error:', error);
-            return res.json({ success: false, message: 'Faculty search failed.' });
+            return res.json({ success: false, message: 'Faculty search failed: ' + error.message });
         }
 
         if (!data || data.length === 0) {
@@ -375,22 +380,30 @@ app.get('/api/chatbot/faculty/search', requireAuth, async (req, res) => {
             });
         }
 
-        if (data.length > 1) {
-            const formattedData = data.map(f => ({
+        // Remove duplicates by faculty_id
+        const uniqueFaculty = Array.from(
+            new Map(data.map(f => [f.faculty_id, f])).values()
+        );
+
+        console.log('✅ Unique results:', uniqueFaculty.length);
+
+        if (uniqueFaculty.length > 1) {
+            const formattedData = uniqueFaculty.map(f => ({
                 name: f.name,
                 cabin: f.cabin_number,
-                department: f.department
+                department: f.department,
+                status: f.is_available ? 'Available' : 'Busy'
             }));
 
             return res.json({
                 success: true,
                 multiple: true,
-                message: `Found ${data.length} faculty members matching "${name}":`,
+                message: `Found ${uniqueFaculty.length} faculty members matching "${name}":`,
                 data: formattedData
             });
         }
 
-        const faculty = data[0];
+        const faculty = uniqueFaculty[0];
         res.json({
             success: true,
             multiple: false,
